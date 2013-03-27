@@ -1,0 +1,11 @@
+{
+  "name": "statemachine",
+  "version": "0.1.0",
+  "repo": "kaerus-component/statemachine",
+  "scripts": [
+    "index.js"
+  ],
+  "dependencies": {
+    "kaerus-component/emitter": "*"
+  }
+}
