@@ -1,11 +1,12 @@
-<pre>     
-       S  m
-	Statemachine
-       a  c
-       t  h
-       e  i
+<pre> 
+	  S    
+      t   M      
+	StateMachine
+      t   c    
+      e   h    
+      Machine 
           n
-          e
+      State
 </pre>
 
 Usage
