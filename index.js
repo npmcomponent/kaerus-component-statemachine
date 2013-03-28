@@ -26,6 +26,7 @@ function Statemachine(mixin){
 			return this._state;
 		},
 		set: function(state){
+			if(!state) return;
 			machine._status = PENDING;
 			machine.emit("transit",machine.action,state);
 			return this._state = state;
@@ -91,23 +92,15 @@ function inherit(self, parent) {
 }
 
 Statemachine.prototype.init = function(action,state){
-	this._rules._default = action;
-	this._rules._initial = state;
-
-	return this;
-}
-
-Statemachine.prototype.reset = function(){
-	this.action = this._rules._default;
-	this.state = this._rules._initial;
-	this._status = PENDING;
+	this.status = PENDING;
+	this.action = action;
+	this.state = state;
 
 	return this;
 }
 
 Statemachine.prototype.run = function(){
-	if(!this._status) this.reset();
-	else this.state = this.state;
+	this.state = this.state;
 
 	return this;
 }
@@ -156,7 +149,7 @@ Statemachine.prototype.define = function(rule,from,to){
 
 		this[rule] = function(state){
 			machine.action = rule;
-			machine.state = state || machine.state;
+			machine.state = state || getNext(action,machine.state);
 
 			return action;
 		}

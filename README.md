@@ -43,9 +43,10 @@ myMachine.for("ignition")
 	.on("starting",function(next){ console.log("starting"); next(); })
 	.on("rumbling",function(next){ 
 		console.log("rumbling"); 
-		if(myMachine._from === 'shaking') myMachine.liftoff();
+		if(myMachine.state === 'shaking') myMachine.liftoff();
 		else next(); 
-	}).on("shaking",function(next){ console.log("shaking"); next("rumbling"); });
+	})
+	.on("shaking",function(next){ console.log("shaking"); next("rumbling"); });
 
 myMachine.for("liftoff")
 	.on("rumbling",function(next){ next() })
