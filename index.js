@@ -1,15 +1,25 @@
 var Emitter = require('emitter');
 
-/* machine statuses */
-var OK = 1, ERROR = -1, PENDING = 0;
+/* machine status */
+var PENDING = 0, OK = 1, ERROR = -1;
 
 function Statemachine(mixin){
-	var machine = this;
+	var machine = mixin || this;
+
+	if(mixin) {
+        for(var key in Statemachine.prototype) {
+            mixin[key] = Statemachine.prototype[key];
+        }
+        machine = mixin;
+        machine._events = {};
+    }
+
+    Emitter.call(machine);
 
 	machine._status = PENDING;
 	machine._rules = {};
 
-	Object.defineProperty(this,'state',{
+	Object.defineProperty(machine,'state',{
 		_state: null,
 		enumerable: false,
 		get: function(){
@@ -24,7 +34,7 @@ function Statemachine(mixin){
 		}
 	});
 
-	Object.defineProperty(this,'action',{
+	Object.defineProperty(machine,'action',{
 		_action: null,
 		enumerable: false,
 		get: function(){
@@ -34,8 +44,6 @@ function Statemachine(mixin){
 			return this._action = action;
 		}
 	});
-
-	Emitter.call(machine,mixin);
 
 	/* check legality of state transit before propagation */
 	machine.before("transit",function(action,state){
@@ -65,6 +73,8 @@ function Statemachine(mixin){
 		machine._status = ERROR;
 		console.log("state error for %s from %s to %s:", action, machine._from, state, message);
 	});
+
+	return machine;
 }
 
 inherit(Statemachine,Emitter);
@@ -82,7 +92,7 @@ function inherit(self, parent) {
         });
 }
 
-Statemachine.prototype.initial = function(action,state){
+Statemachine.prototype.init = function(action,state){
 	this._rules._default = action;
 	this._rules._initial = state;
 
@@ -92,6 +102,14 @@ Statemachine.prototype.initial = function(action,state){
 Statemachine.prototype.reset = function(){
 	this.action = this._rules._default;
 	this.state = this._rules._initial;
+	this._status = PENDING;
+
+	return this;
+}
+
+Statemachine.prototype.run = function(){
+	if(!this._status) this.reset();
+	else this.state = this.state;
 
 	return this;
 }
@@ -100,6 +118,23 @@ Statemachine.prototype.for = function(action){
 	return this._rules[action];
 }
 
+function getNext(action,from,state){
+	var next_state;
+
+	if(!Array.isArray(action._states)){
+		if(action._states.from.indexOf(state)>=0)
+			next_state = action._states.to;
+	} else {
+		for(var i = 0, l = rule._states.length; i < l; i++){
+			if(action._states[i].from.indexOf(from)>=0) {
+				next_state = action._states[i].to;
+				break;
+			}	
+		}
+	}
+
+	return next_state;
+}
 Statemachine.prototype.define = function(action,from,to){
 	var transit = to ? {from:from, to:to} : from,
 		rule = this._rules[action], machine = this;
@@ -126,25 +161,13 @@ Statemachine.prototype.define = function(action,from,to){
 		}
 
 		this.on(action,function(state){
-			var next_state;
 
-			rule.emit(state);
+			rule.emit(state,next);
 
-			if(!Array.isArray(rule._states)){
-				if(rule._states.from.indexOf(state)>=0)
-					next_state = rule._states.to;
-			} else {
-				for(var i = 0, l = rule._states.length; i < l; i++){
-					if(rule._states[i].from.indexOf(machine._from)>=0) {
-						next_state = rule._states[i].to;
-						break;
-					}	
-				}
+			function next(next_state){
+				if(!next_state) next_state = getNext(action,machine._from,state);
+				if(next_state) machine.state = next_state;
 			}
-			
-			console.log("next_state", next_state);
-
-			if(next_state) machine.state = next_state;
 		});
 
 	}	
