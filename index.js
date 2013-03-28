@@ -135,34 +135,35 @@ function getNext(action,from,state){
 
 	return next_state;
 }
-Statemachine.prototype.define = function(action,from,to){
+
+Statemachine.prototype.define = function(rule,from,to){
 	var transit = to ? {from:from, to:to} : from,
-		rule = this._rules[action], machine = this;
+		action = this._rules[rule], machine = this;
 	
-	if(!rule){
+	if(!action){
 		/* each rule set has its own events */
-		rule = this._rules[action] = new Emitter();
-		rule._states = transit;
+		action = this._rules[rule] = new Emitter();
+		action._states = transit;
 	} else {
-		if(!Array.isArray(rule._states))
-			rules._states = [rule._states];
+		if(!Array.isArray(action._states))
+			action._states = [action._states];
 
 		if(Array.isArray(transit))
-			rule._states.concat(transit);
+			action._states.concat(transit);
 		else		
-			rule._states.push(transit);
+			action._states.push(transit);
 	}
 
-	if(!this[action]) {
+	if(!this[rule]) {
 
-		this[action] = function(state){
-			machine.action = action;
+		this[rule] = function(state){
+			machine.action = rule;
 			machine.state = state;
 		}
 
-		this.on(action,function(state){
+		this.on(rule,function(state){
 
-			rule.emit(state,next);
+			action.emit(state,next);
 
 			function next(next_state){
 				if(!next_state) next_state = getNext(action,machine._from,state);
