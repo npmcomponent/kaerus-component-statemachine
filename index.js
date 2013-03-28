@@ -19,40 +19,39 @@ function Statemachine(mixin){
 	machine._status = PENDING;
 	machine._rules = {};
 
+	var _state, _next;
+
 	Object.defineProperty(machine,'state',{
-		_state: null,
-		_next: null,
 		enumerable: false,
 		get: function(){
-			return this._state;
+			return _state;
 		},
 		set: function(state){
 			if(!state) return;
 			machine._status = PENDING;
-			this._state = this._next;
-			this._next = state;
+			_state = _next;
+			_next = state;
 			machine.emit("transit",machine.action,state);
-			return this._state = this._next;
+			return _state = _next;
 		}
 	});
 
+	var _action;
+
 	Object.defineProperty(machine,'action',{
-		_action: null,
 		enumerable: false,
 		get: function(){
-			return this._action;
+			return _action;
 		},
 		set: function(action){
-			return this._action = action;
+			return _action = action;
 		}
 	});
 
 	/* check legality of state transit before propagation */
 	machine.before("transit",function(action,state){
-
-		if(!machine._rules[action]){
-			machine.emit("error",action,state,"no rules for action");
-
+		if(!this.can(this.action,this.state,action,state)){
+			machine.emit("error","illegal action for state");
 			return false;
 		} 
 	});
@@ -71,9 +70,9 @@ function Statemachine(mixin){
 	});
 
 	/* error handler */
-	machine.before("error",function(action,state,message){
+	machine.on("error",function(message){
 		machine._status = ERROR;
-		console.log("state error for %s from %s to %s:", action, machine.state, state, message);
+		console.log("statemachine error:", message);
 	});
 
 	return machine;
@@ -106,6 +105,53 @@ Statemachine.prototype.for = function(action){
 	return this._rules[action];
 }
 
+Statemachine.prototype.can = function(action1,from,action2,to){
+	var states1, states2;
+
+	if(!action1) states1 = this._rules[this.action]._states;
+	else if(!(states1 = this._rules[action1]._states)) return false;
+
+	if(!action2) states2 = states1;
+	else if(!(states2 = this._rules[action2]._states)) return false;
+
+	function canDo(to,state){
+		if(!to) 
+			return true;
+		else if(!Array.isArray(state) && state.to === to)
+			return true;
+		else {
+			for(var i = 0, l = state.length; i < l; i++){
+				if(state[i].to === to)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/* consciously a little sloppy */
+	if(!Array.isArray(states1)){
+		if(states1.from.indexOf(from)>=0){
+			return canDo(to,states2);
+		} 
+	} else {
+		for(var i = 0, l = states1.length; i < l; i++){
+			if(states1[i].from.indexOf(from)>=0) {
+				if(canDo(to,states2)) return true;
+			}	
+		}
+	}
+
+	return false;	
+}
+
+Statemachine.prototype.next = function(){
+	var next_state = getNext(this.action,this.state);
+
+	this.state = next_state;
+
+	return this;
+}
+
 function getNext(action,from){
 	var next_state;
 
@@ -113,7 +159,7 @@ function getNext(action,from){
 		if(action._states.from.indexOf(from)>=0)
 			next_state = action._states.to;
 	} else {
-		for(var i = 0, l = rule._states.length; i < l; i++){
+		for(var i = 0, l = action._states.length; i < l; i++){
 			if(action._states[i].from.indexOf(from)>=0) {
 				next_state = action._states[i].to;
 				break;

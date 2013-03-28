@@ -21,6 +21,7 @@ Statemachine(myMachine);
 
 /* define states */
 myMachine.define("ignition",[
+	{from:undefined,to:"starting"},
 	{from:"starting",to:"rumbling"},
 	{from:"rumbling",to:"shaking"},
 	{from:"shaking",to:"rumbling"}
