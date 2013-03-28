@@ -33,7 +33,6 @@ myMachine.define("liftoff",[
 
 myMachine.define("orbit",[
 	{from:"shutdown",to:"checkpath"},
-	{from:"checkpath",to:"shutdown"},
 	{from:"checkpath",to:"adjust"},
 	{from:"adjust",to:"shutdown"}
 ]);
