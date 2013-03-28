@@ -16,6 +16,10 @@
   "dependencies": {
     "emitter":"git://github.com/kaerus-component/emitter#master"
   },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/kaerus-component/statemachine.git"

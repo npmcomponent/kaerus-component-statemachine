@@ -21,6 +21,7 @@ function Statemachine(mixin){
 
 	Object.defineProperty(machine,'state',{
 		_state: null,
+		_next: null,
 		enumerable: false,
 		get: function(){
 			return this._state;
@@ -28,8 +29,10 @@ function Statemachine(mixin){
 		set: function(state){
 			if(!state) return;
 			machine._status = PENDING;
+			this._state = this._next;
+			this._next = state;
 			machine.emit("transit",machine.action,state);
-			return this._state = state;
+			return this._state = this._next;
 		}
 	});
 
@@ -149,7 +152,9 @@ Statemachine.prototype.define = function(rule,from,to){
 		}
 
 		this.on(rule,function(state){
-			action.emit(state,next);
+			console.log("action listeners", action.hasListeners());
+			if(action.hasListeners()) action.emit(state,next);
+			else next();
 
 			function next(next_state){		
 				if(!next_state) next_state = getNext(action,state);
