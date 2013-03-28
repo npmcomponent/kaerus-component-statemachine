@@ -1,15 +1,26 @@
-var SM = require('..');
+var should = require('should'),
+    SM = require('..');
 
 describe('Statemachine', function(){
   describe('constructor', function(){
-    it('should create object', function(){
-      var sm = new SM;
+    var sm = new SM;
+
+    it('should create object that has _status, _rules and _events', function(){
       
       sm.should.be.a('object');
       sm.should.have.property('_status');
       sm.should.have.property('_rules');
       sm.should.have.property('_events');
-      
+    })
+
+    it('should have a transit event listener',function(){
+      sm._events.should.have.property('transit');
+    })
+
+    it('should have an initial state that is undefined',function(){
+      var state = sm.state;
+      sm.should.have.ownProperty('state');
+      should.not.exist(state);
     })
 
     it('should mixin object',function(){
@@ -24,13 +35,9 @@ describe('Statemachine', function(){
     })
   })
 
-  describe("define(test,'one','two')",function(){
+  describe("define",function(){
     var sm = new SM;
     sm.define("test",'one','two');
-
-    it('should have _rules',function(){
-      sm.should.have.property('_rules'); 
-    })
 
     it('should define test() action',function(){
        sm.test.should.be.a('function');
@@ -45,17 +52,14 @@ describe('Statemachine', function(){
       sm._rules.test.should.have.property('_states');
     })
 
-  })
-
-  describe('define variants',function(){
-    it('should create a single rule',function(){
-      var sm = new SM;
-
-      sm.define('test','one','two');
-      sm._rules.test._states.should.be.a('object').and.eql({from:'one',to:'two'});
+    it('should define from and to states',function(){
+      sm._rules.test._states.should.eql({from:'one',to:'two'})
     })
 
-    it('should create a rule by object',function(){
+  })
+
+  describe("define with {from:,to:}",function(){
+    it('should define a single entry',function(){
       var sm = new SM;
 
       var define = {from:'one',to:'two'};
@@ -63,8 +67,10 @@ describe('Statemachine', function(){
       sm.define('test',define);
       sm._rules.test._states.should.be.a('object').and.eql(define);
     })
+  })  
 
-    it('should create an array of rules',function(){
+  describe("define with [{from:,to:}]",function(){
+    it('should create multiple entries',function(){
       var sm = new SM;
 
       var defines = [
@@ -73,15 +79,48 @@ describe('Statemachine', function(){
       ];
 
       sm.define('test',defines);
-      sm._rules.test._states.should.be.a('object').and.eql(defines);
+      sm._rules.test._states.should.be.an.instanceOf(Array).and.eql(defines);
     })
+  })  
 
-    it('should create a rule with multiple from entries',function(){
+  describe("define with {from:[],to:}",function(){
+    it('should have multiple from entries',function(){
       var sm = new SM;
 
       var define = {from:['one','two'],to:'three'};
       sm.define('test',define);
       sm._rules.test._states.should.eql(define);
+      sm._rules.test._states.from.should.be.an.instanceOf(Array);
+      sm._rules.test._states.from.should.eql(['one','two']);
     })
   })
+
+  describe("action state events",function(){
+    var sm = new SM, test, rules;
+
+    sm.define('test','one','two');
+
+    it("should have test action",function(){
+      sm.test.should.be.a('function');
+    })
+
+    it("for('test')",function(){
+      rules = sm.for('test');
+      rules.should.be.a('object');
+    })
+
+    it("for('test').on('one',function(){})",function(){
+      sm.for('test').on('one',function(){test = true});
+      rules._events.should.have.property('one');
+    })
+
+    it("trigger state by method",function(){
+      sm.test('one');
+      should.equal(test,true);
+    })
+
+
+  });
+
+
 })  

@@ -152,9 +152,11 @@ Statemachine.prototype.define = function(rule,from,to){
 		}
 
 		this.on(rule,function(state){
-			console.log("action listeners", action.hasListeners());
-			if(action.hasListeners()) action.emit(state,next);
-			else next();
+			/* todo: reconsider */
+			//console.log("action listeners", action.hasListeners());
+			//if(action.hasListeners()) action.emit(state,next);
+			//else next();
+			action.emit(state,next);
 
 			function next(next_state){		
 				if(!next_state) next_state = getNext(action,state);
