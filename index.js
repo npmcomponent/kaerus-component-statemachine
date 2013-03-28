@@ -27,10 +27,8 @@ function Statemachine(mixin){
 		},
 		set: function(state){
 			machine._status = PENDING;
-			machine._from = this._state;
-			this._state = state;
 			machine.emit("transit",machine.action,state);
-			return this._state;
+			return this._state = state;
 		}
 	});
 
@@ -57,7 +55,7 @@ function Statemachine(mixin){
 
 	/* propagate state to action */
 	machine.on("transit",function(action,state){
-		console.log("transit %s from %s to state", action, machine._from, state);
+		console.log("transit %s from %s to state", action, machine.state, state);
 		machine.emit(action,state);
 	});
 
@@ -71,7 +69,7 @@ function Statemachine(mixin){
 	/* error handler */
 	machine.before("error",function(action,state,message){
 		machine._status = ERROR;
-		console.log("state error for %s from %s to %s:", action, machine._from, state, message);
+		console.log("state error for %s from %s to %s:", action, machine.state, state, message);
 	});
 
 	return machine;
@@ -118,11 +116,11 @@ Statemachine.prototype.for = function(action){
 	return this._rules[action];
 }
 
-function getNext(action,from,state){
+function getNext(action,from){
 	var next_state;
 
 	if(!Array.isArray(action._states)){
-		if(action._states.from.indexOf(state)>=0)
+		if(action._states.from.indexOf(from)>=0)
 			next_state = action._states.to;
 	} else {
 		for(var i = 0, l = rule._states.length; i < l; i++){
@@ -158,15 +156,17 @@ Statemachine.prototype.define = function(rule,from,to){
 
 		this[rule] = function(state){
 			machine.action = rule;
-			machine.state = state;
+			machine.state = state || machine.state;
+
+			return action;
 		}
 
 		this.on(rule,function(state){
-
 			action.emit(state,next);
 
-			function next(next_state){
-				if(!next_state) next_state = getNext(action,machine._from,state);
+			function next(next_state){		
+				if(!next_state) next_state = getNext(action,state);
+
 				if(next_state) machine.state = next_state;
 			}
 		});
