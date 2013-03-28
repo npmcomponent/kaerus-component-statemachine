@@ -1,4 +1,5 @@
-<pre>     M
+<pre>     
+          M
 	Statemachine
           c
           h
