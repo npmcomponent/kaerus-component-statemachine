@@ -57,5 +57,5 @@ myMachine.for("liftoff")
 /* .......... */
 
 /* initialize state and run */
-myMachine.init("ignition","starting").run();
+myMachine.init("ignition","starting");
 ```

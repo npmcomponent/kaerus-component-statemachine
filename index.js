@@ -99,12 +99,6 @@ Statemachine.prototype.init = function(action,state){
 	return this;
 }
 
-Statemachine.prototype.run = function(){
-	this.state = this.state;
-
-	return this;
-}
-
 Statemachine.prototype.for = function(action){
 	return this._rules[action];
 }
