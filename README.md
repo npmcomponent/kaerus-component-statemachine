@@ -1,9 +1,9 @@
 <pre>     
-          M
+       S  m
 	Statemachine
-          c
-          h
-          i
+       a  c
+       t  h
+       e  i
           n
           e
 </pre>
