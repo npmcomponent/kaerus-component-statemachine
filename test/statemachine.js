@@ -2,28 +2,33 @@ var should = require('should'),
     SM = require('..');
 
 describe('Statemachine', function(){
-  describe('constructor', function(){
+  describe('instance', function(){
     var sm = new SM;
 
-    it('should create object that has _status, _rules and _events', function(){
-      
+    it('should have _status, _rules, _events, _state, _action', function(){
       sm.should.be.a('object');
       sm.should.have.property('_status');
       sm.should.have.property('_rules');
       sm.should.have.property('_events');
+      sm.should.have.ownProperty('_state');
+      sm.should.have.ownProperty('_action');
+    })
+
+    it('should have an initial state that is undefined',function(){
+      var state = sm._state;
+      should.not.exist(state);
+    })
+
+    it('should have an initial action that is undefined',function(){
+      var action = sm._action;
+      should.not.exist(action);
     })
 
     it('should have a transit event listener',function(){
       sm._events.should.have.property('transit');
     })
 
-    it('should have an initial state that is undefined',function(){
-      var state = sm._state;
-      sm.should.have.ownProperty('_state');
-      should.not.exist(state);
-    })
-
-    it('should mixin object',function(){
+    it('should be able to mix into an object',function(){
       var obj = {test:true};
 
       SM(obj);
@@ -35,7 +40,7 @@ describe('Statemachine', function(){
     })
   })
 
-  describe("define",function(){
+  describe("define test",function(){
     var sm = new SM;
     sm.define("test",'one','two');
 
@@ -56,10 +61,7 @@ describe('Statemachine', function(){
       sm._rules.test._states.should.eql({from:'one',to:'two'})
     })
 
-  })
-
-  describe("define with {from:,to:}",function(){
-    it('should define a single entry',function(){
+   it('define with {from:,to:} should define a single entry',function(){
       var sm = new SM;
 
       var define = {from:'one',to:'two'};
@@ -67,10 +69,8 @@ describe('Statemachine', function(){
       sm.define('test',define);
       sm._rules.test._states.should.be.a('object').and.eql(define);
     })
-  })  
 
-  describe("define with [{from:,to:}]",function(){
-    it('should create multiple entries',function(){
+    it('define with [{from:,to:}] should create multiple entries',function(){
       var sm = new SM;
 
       var defines = [
@@ -80,11 +80,9 @@ describe('Statemachine', function(){
 
       sm.define('test',defines);
       sm._rules.test._states.should.be.an.instanceOf(Array).and.eql(defines);
-    })
-  })  
+    })  
 
-  describe("define with {from:[],to:}",function(){
-    it('should have multiple from entries',function(){
+    it('define with {from:[],to:} should have multiple from entries',function(){
       var sm = new SM;
 
       var define = {from:['one','two'],to:'three'};
@@ -94,34 +92,33 @@ describe('Statemachine', function(){
       sm._rules.test._states.from.should.eql(['one','two']);
     })
   })
-
-  describe("action state events",function(){
+  describe("transit test",function(){
     var sm = new SM, test, rules;
 
     sm.define('test',[{from:undefined,to:'one'},{from:'one',to:'two'}]);
 
-    it("should have test action",function(){
+    it("should create test() method",function(){
       sm.test.should.be.a('function');
     })
 
-    it("for('test')",function(){
+    it("for('test') should return rules",function(){
       rules = sm.for('test');
       rules.should.be.a('object');
     })
 
-    it("for('test').on('one',function(){})",function(){
+    it("for('test').on('one',function(){}) should create event on 'one' state",function(){
       sm.for('test').on('one',function(){test = 1});
       rules._events.should.have.property('one');
     })
 
-    it("start('test','one')",function(){
+    it("start('test','one') should transit from 'undefined' to 'one'",function(){
       sm.start('test','one'); // action(test), state(undefined->one)
       var state = sm._state;
       state.should.equal('one');
       should.equal(test,1);
     })
 
-    it("trigger state by method",function(){
+    it("test('two') should transit state from 'one' to 'two'",function(){
       sm.for('test').on('two',function(){test = 2});
       sm.test('two');
       var state = sm._state;
