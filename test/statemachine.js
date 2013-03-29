@@ -18,8 +18,8 @@ describe('Statemachine', function(){
     })
 
     it('should have an initial state that is undefined',function(){
-      var state = sm.state;
-      sm.should.have.ownProperty('state');
+      var state = sm._state;
+      sm.should.have.ownProperty('_state');
       should.not.exist(state);
     })
 
@@ -98,7 +98,7 @@ describe('Statemachine', function(){
   describe("action state events",function(){
     var sm = new SM, test, rules;
 
-    sm.define('test','one','two');
+    sm.define('test',[{from:undefined,to:'one'},{from:'one',to:'two'}]);
 
     it("should have test action",function(){
       sm.test.should.be.a('function');
@@ -110,13 +110,23 @@ describe('Statemachine', function(){
     })
 
     it("for('test').on('one',function(){})",function(){
-      sm.for('test').on('one',function(){test = true});
+      sm.for('test').on('one',function(){test = 1});
       rules._events.should.have.property('one');
     })
 
+    it("start('test','one')",function(){
+      sm.start('test','one'); // action(test), state(undefined->one)
+      var state = sm._state;
+      state.should.equal('one');
+      should.equal(test,1);
+    })
+
     it("trigger state by method",function(){
-      sm.test('one');
-      should.equal(test,true);
+      sm.for('test').on('two',function(){test = 2});
+      sm.test('two');
+      var state = sm._state;
+      state.should.equal('two');
+      should.equal(test,2);
     })
 
 
