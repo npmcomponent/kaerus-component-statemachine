@@ -21,7 +21,7 @@ Statemachine(myMachine);
 
 /* define states */
 myMachine.define("ignition",[
-	{from:undefined,to:"starting"},
+	{from:undefined,to:"starting"}, // from init
 	{from:"starting",to:"rumbling"},
 	{from:"rumbling",to:"shaking"},
 	{from:"shaking",to:"rumbling"}
@@ -57,6 +57,6 @@ myMachine.for("liftoff")
 
 /* .......... */
 
-/* initialize state and run */
-myMachine.init("ignition","starting");
+/* initializes state and runs machine */
+myMachine.start("ignition","starting");
 ```
