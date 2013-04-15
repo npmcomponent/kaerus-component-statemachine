@@ -7,5 +7,6 @@
   ],
   "dependencies": {
     "kaerus-component/emitter": "*"
-  }
+  },
+  "license": "Apache2_0"
 }
