@@ -92,6 +92,7 @@ describe('Statemachine', function(){
       sm._rules.test._states.from.should.eql(['one','two']);
     })
   })
+
   describe("transit test",function(){
     var sm = new SM, test, rules;
 
@@ -112,7 +113,7 @@ describe('Statemachine', function(){
     })
 
     it("start('test','one') should transit from 'undefined' to 'one'",function(){
-      sm.start('test','one'); // action(test), state(undefined->one)
+      sm.start('test','one'); 
       var state = sm._state;
       state.should.equal('one');
       should.equal(test,1);
@@ -125,9 +126,5 @@ describe('Statemachine', function(){
       state.should.equal('two');
       should.equal(test,2);
     })
-
-
-  });
-
-
+  })
 })  

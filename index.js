@@ -4,9 +4,9 @@ var Emitter = require('emitter');
 var STOP = 0, START = 1, ERROR = -1;
 
 function Statemachine(mixin){
-	var machine = this;
+    var machine = this;
 
-	if(mixin){
+    if(mixin){
         for(var key in Statemachine.prototype){
             mixin[key] = Statemachine.prototype[key];
         }
@@ -97,9 +97,9 @@ function inherit(self, parent){
 Statemachine.prototype.init = function(action,state){
     this._status = STOP;
     this._action = action;
-	this._state = state;
+    this._state = state;
 
-	return this;
+    return this;
 }
 
 Statemachine.prototype.stop = function(action,state){
@@ -114,14 +114,14 @@ Statemachine.prototype.stop = function(action,state){
 
 Statemachine.prototype.start = function(action,state){
     this._action = action || this._action;
-    this._status = this._paused || this._status || START;
+    this._status = this._paused || this._status || START;
     this._state = state || this._state;
 
     return this;
 }
 
 Statemachine.prototype.for = function(action){
-	return this._rules[action];
+    return this._rules[action];
 }
 
 
@@ -138,27 +138,27 @@ function canDo(type,value,states){
 }
 
 Statemachine.prototype.can = function(action1,from,action2,to){
-	var states1, states2;
+    var states1, states2;
 
-	if(!action1) states1 = this._rules[this._action]._states;
-	else if(!(states1 = this._rules[action1]._states)) return false;
+    if(!action1) states1 = this._rules[this._action]._states;
+    else if(!(states1 = this._rules[action1]._states)) return false;
 
-	if(!action2) states2 = states1;
-	else if(!(states2 = this._rules[action2]._states)) return false;
+    if(!action2) states2 = states1;
+    else if(!(states2 = this._rules[action2]._states)) return false;
 
-	return (canDo('from',from,states1) && canDo('to',to,states2));	
+    return (canDo('from',from,states1) && canDo('to',to,states2));  
 }
 
 Statemachine.prototype.next = function(){
-	var next_state = getNext(this._action,this._state);
+    var next_state = getNext(this._action,this._state);
 
-	this._state = next_state;
+    this._state = next_state;
 
-	return this;
+    return this;
 }
 
 function getNext(action,from){
-	var next_state;
+    var next_state;
 
     function toState(from,state){
         if(!Array.isArray(from) && state.from === from)
@@ -169,21 +169,21 @@ function getNext(action,from){
         }
     }
 
-	if(!Array.isArray(action._states)){
-		next_state = toState(from,action._states);
-	} else {
-		for(var i = 0, l = action._states.length; i < l; i++){
-			if((next_state = toState(from,action._states[i]))){
-				break;
-			}	
-		}
-	}
+    if(!Array.isArray(action._states)){
+        next_state = toState(from,action._states);
+    } else {
+        for(var i = 0, l = action._states.length; i < l; i++){
+            if((next_state = toState(from,action._states[i]))){
+                break;
+            }   
+        }
+    }
 
-	return next_state;
+    return next_state;
 }
 
 Statemachine.prototype.define = function(rule,from,to){
-	var transit = to ? {from:from, to:to} : from,
+    var transit = to ? {from:from, to:to} : from,
         action = this._rules[rule], machine = this;
 
     if(!action){
@@ -195,7 +195,7 @@ Statemachine.prototype.define = function(rule,from,to){
 
         if(Array.isArray(transit))
             action._states.concat(transit);
-        else		
+        else        
             action._states.push(transit);
     }
 
@@ -212,14 +212,14 @@ Statemachine.prototype.define = function(rule,from,to){
             if(action.hasListeners(state)) action.emit(state,next);
             else next();
 
-            function next(next_state){		
+            function next(next_state){      
                 if(!next_state) next_state = getNext(action,state);
 
                 if(next_state) machine._state = next_state;
             }
         });
 
-    }	
+    }   
 
     return this;
 }
