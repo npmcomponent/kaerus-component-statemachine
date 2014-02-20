@@ -1,4 +1,4 @@
-var Emitter = require('emitter');
+var Emitter = require('kaerus-component-emitter');
 
 /* machine status */
 var STOP = 0, START = 1, ERROR = -1;

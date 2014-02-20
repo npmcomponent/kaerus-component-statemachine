@@ -1,29 +1,8 @@
 {
-  "name": "statemachine",
+  "name": "kaerus-component-statemachine",
   "version": "0.1.0",
-  "description": "js statemachine",
-  "keywords": [
-    "statemachine"
-  ],
-  "author": { 
-    "name": "Kaerus",
-    "email": "contact@kaerus.com",
-    "web": "http://kaerus.com"
-  },
-  "contributors": [
-    "anders elo <anders@kaerus.com>"
-  ],
   "dependencies": {
-    "emitter":"git://github.com/kaerus-component/emitter#master"
+    "kaerus-component-emitter": "git://github.com/npmcomponent/kaerus-component-emitter.git"
   },
-  "devDependencies": {
-    "mocha": "*",
-    "should": "*"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/kaerus-component/statemachine.git"
-  },
-  "main": "index.js",
-  "license": "APACHE2_0"
+  "license": "Apache2_0"
 }
